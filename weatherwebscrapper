@@ -1,1 +1,58 @@
+import pandas as pd
+import requests
+from bs4 import BeautifulSoup
+
+# Requests is a module that establishes a connection to the URL
+# bs4 is module from the library BeautifulSoup
+
+# This code parses the information of your chosen URL to sort and organize for your own purposes
+
+
+page = requests.get('https://forecast.weather.gov/MapClick.php?lat=29.839590000000044&lon=-95.54944999999998#.XYVErChKguU')
+
+# "page" is now a url variable that we can manipulate
+
+soup = BeautifulSoup(page.content, 'html.parser')
+
+# "soup" is a variable that allows us to scan through the content of the "page" URL
+# print(soup) will return the page source of the URL page.
+# print(soup.find_all('a'))
+# print(soup.find_all('a')) scarps and finds all the links on the page.
+
+week = soup.find(id='seven-day-forecast-body')
+
+# print(week)
+
+# print(week.find_all(class_='tombstone-container'))
+
+items = week.find_all(class_='tombstone-container')
+# print(items[0])
+
+# items represents each description of the tombstone.
+# Next we will create an excel sheet that will organize all the information our scrapper has attained
+
+print(items[0].find(class_='period-name').get_text())
+print(items[0].find(class_ ='short-desc').get_text())
+print(items[0].find(class_ ='temp').get_text())
+
+period_names = [item.find(class_='period-name').get_text() for item in items]
+# period_names loops through and gets the name of the days
+short_descriptions = [item.find(class_='short-desc').get_text() for item in items]
+temperatures = [item.find(class_='temp').get_text() for item in items]
+
+# print(period_names)
+# print(short_descriptions)
+# print(temperatures)
+
+weather_stuff = pd.DataFrame(
+    {'period': period_names,
+     'short_descriptions': short_descriptions,
+     'temperatures': temperatures,
+     })
+
+print(weather_stuff)
+
+# weather_stuff is a data frame that helps us organize our information
+
+weather_stuff.to_csv('weather.csv')
 
